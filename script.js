@@ -3,9 +3,9 @@ console.log("JS Loaded");
 const state = {
   contacts: [],
 };
-function getData() {
+function getData(anzahl) {
   const getUser = fetch(
-    "https://dummy-apis.netlify.app/api/contact-suggestions?count=8"
+    "https://dummy-apis.netlify.app/api/contact-suggestions?count=" + anzahl
   );
   getUser
     .then(function (response) {
@@ -45,6 +45,7 @@ function contactTemplate(contactData) {
   closeButton.innerText = "X";
   closeButton.addEventListener("click", function () {
     wrapperElement.style.display = "none";
+    getData(1);
   });
 
   /** contact Image */
@@ -102,4 +103,4 @@ function render() {
   }
 }
 
-getData();
+getData(8);
