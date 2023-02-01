@@ -3,6 +3,7 @@ console.log("JS Loaded");
 const state = {
   contacts: [],
 };
+
 function getData(anzahl) {
   const getUser = fetch(
     "https://dummy-apis.netlify.app/api/contact-suggestions?count=" + anzahl
@@ -20,24 +21,38 @@ function getData(anzahl) {
     });
 }
 
+let countPendings = 0;
+function pendings() {
+  const pSection = document.querySelector(".pending");
+  const pendingText = "pending invitations";
+  let pendings = countPendings;
+  let pendingAnzeige;
+
+  if (pendings <= 0) {
+    pendings = "No";
+    countPendings = 0;
+  }
+  pendingAnzeige = pendings + " " + pendingText;
+  pSection.innerHTML = pendingAnzeige;
+}
+pendings();
+
 function contactTemplate(contactData) {
   /** wrapper der alle elemente umgibt */
   const wrapperElement = document.createElement("div");
   wrapperElement.classList.add("card");
-  if (contactData.backgroundImage !== "") {
-    wrapperElement.style.backgroundImage =
-      "url(" +
-      contactData.backgroundImage +
-      "?random=" +
-      contactData.name.first +
-      ")";
-  } else {
-    wrapperElement.style.backgroundImage =
-      "linear-gradient(lightblue, lightblue)";
-  }
 
-  wrapperElement.style.backgroundRepeat = "no-repeat";
-  wrapperElement.style.backgroundPosition = "left 0px bottom 230px";
+  // Hintergrundbild
+  const imageBGwrapper = document.createElement("div");
+  imageBGwrapper.classList.add("image-wrapper");
+  const backgroundImageUrl =
+    "url(" +
+    contactData.backgroundImage +
+    "?random=" +
+    contactData.name.first +
+    ")";
+
+  imageBGwrapper.style.backgroundImage = backgroundImageUrl;
 
   /** Close Button */
   const closeButton = document.createElement("button");
@@ -45,12 +60,17 @@ function contactTemplate(contactData) {
   closeButton.innerText = "X";
   closeButton.addEventListener("click", function () {
     wrapperElement.style.display = "none";
+    countPendings -= 1;
     getData(1);
+    pendings();
   });
 
   /** contact Image */
+  const userImageDiv = document.createElement("div");
+  userImageDiv.classList.add("user-image-div");
   const userImage = document.createElement("img");
   userImage.src = contactData.picture;
+  userImageDiv.appendChild(userImage);
 
   /** contact name */
   const personName = document.createElement("h2");
@@ -80,12 +100,15 @@ function contactTemplate(contactData) {
   connectButton.innerText = "Connect";
   connectButton.classList.add("connect");
   connectButton.addEventListener("click", function () {
-    alert("You are now connected with " + personNameTxt);
+    countPendings += 1;
+    connectButton.innerText = "Pending";
+    pendings();
   });
 
   wrapperElement.append(
+    imageBGwrapper,
     closeButton,
-    userImage,
+    userImageDiv,
     personName,
     pProfession,
     pMore,
